@@ -10,9 +10,9 @@
 
 ## 현재 상태 (Status)
 
-- **현재 레이어**: Layer 0 — 프로젝트 셋업
-- **현재 작업**: 저장소 초기화 / 모노레포 구조 결정 대기
-- **다음 할 일**: 워크스페이스 도구 선택 → `apps/web`·`apps/api` 골격 생성
+- **현재 레이어**: Layer 1 — 동작하는 서비스 (착수)
+- **현재 작업**: 모노레포 골격 완료, `packages/shared` 공용 타입 패키지 구축 완료
+- **다음 할 일**: `apps/api`(NestJS) 스캐폴딩 → `apps/web`(Vite) → ESLint/Prettier 통합
 - **마지막 갱신**: 2026-06-16
 - **블로커**: 없음
 
@@ -24,17 +24,21 @@
 - [x] 배경 문서 확보 (uptime-monitor-devops.md)
 - [x] CLAUDE.md 작성 (작업 규칙·가이드)
 - [x] CHECKLIST.md 작성
-- [ ] 모노레포 워크스페이스 도구 선택 (pnpm / npm / yarn workspaces)
-- [ ] 루트 디렉터리 레이아웃 생성 (`apps/`, `packages/`, `infra/`, `docker/`, `scripts/`)
-- [ ] Git 저장소 초기화 + `.gitignore`
-- [ ] 코드 품질 도구 (ESLint, Prettier, EditorConfig)
+- [x] 모노레포 워크스페이스 도구 선택 — **pnpm** (packageManager 필드로 버전 고정)
+- [x] 루트 디렉터리 레이아웃 생성 (`apps/`, `packages/`, `infra/`, `docker/`, `scripts/`)
+- [x] Git 저장소 초기화 + `.gitignore`
+- [ ] 코드 품질 도구 (ESLint, Prettier, EditorConfig) — 앱 스캐폴딩 후 통합 예정
 
 ---
 
 ## Layer 1 — 동작하는 서비스 (필수 코어)
 로컬에서 완전히 돌아가는 상태를 먼저 만든다.
 
-- [ ] React + NestJS + MySQL 골격
+- [~] React + NestJS + MySQL 골격
+  - [x] `packages/shared` 공용 타입 패키지 (targets/checks/alerts, tsconfig nodenext + es2022, TS 6)
+  - [ ] `apps/api` (NestJS)
+  - [ ] `apps/web` (React + Vite)
+  - [ ] MySQL (TypeORM) 연결
 - [ ] 체크 엔진: HTTP 헬스체크(상태코드·응답시간)
 - [ ] 체크 엔진: TLS 인증서 만료일 파싱 (Node `tls` 모듈)
 - [ ] Cron 스케줄러 + `checks` 이력 저장
@@ -93,3 +97,8 @@
 > 막힌 항목, 결정 사항, 다음 세션에 이어갈 내용을 자유롭게 기록.
 
 - (2026-06-16) 프로젝트 시작. CLAUDE.md / CHECKLIST.md 작성 완료.
+- (2026-06-16) 모노레포 골격 구성 — pnpm workspaces, 디렉터리 레이아웃, `.gitignore`. (커밋 `ce18e0a`)
+  - `corepack enable`이 `C:\Program Files` 쓰기 권한(EPERM)으로 실패 → corepack 없이 기존 pnpm + `packageManager` 필드로 버전 고정.
+- (2026-06-16) `packages/shared` 공용 타입 패키지 구축. 소비 방식 = 컴파일 패키지(tsc → dist).
+  - `moduleResolution: node`가 deprecated(TS 7.0 제거 예정) → `nodenext`로 변경. `target: es2022`. TypeScript 6.0.3.
+  - 코드 품질 도구(ESLint/Prettier)는 앱 스캐폴딩 후 통합하기로 순서 조정.
