@@ -1,6 +1,6 @@
 export enum CheckStatus {
-  Up = "UP",
-  Down = "DOWN",
+  Up = 'UP',
+  Down = 'DOWN',
 }
 
 export interface Target {
@@ -23,7 +23,7 @@ export interface Check {
   errorMessage: string | null;
 }
 
-export type AlertType = "cert_expiry" | "down";
+export type AlertType = 'cert_expiry' | 'down';
 
 export interface Alert {
   id: number;
