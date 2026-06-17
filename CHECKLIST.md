@@ -11,8 +11,8 @@
 ## 현재 상태 (Status)
 
 - **현재 레이어**: Layer 1 — 동작하는 서비스 (착수)
-- **현재 작업**: `apps/web`(React+Vite) 스캐폴딩 완료 — shared 타입 소비·dev 프록시·기동 확인
-- **다음 할 일**: ESLint/Prettier 통합 → MySQL(TypeORM) 연결
+- **현재 작업**: ESLint/Prettier 루트 통합 완료 (이슈 #5) — lint/format:check 클린
+- **다음 할 일**: "툴링 정렬" 이슈(TS6/jest/shared 듀얼) → MySQL(TypeORM) 연결
 - **마지막 갱신**: 2026-06-17
 - **블로커**: 없음
 
@@ -27,7 +27,7 @@
 - [x] 모노레포 워크스페이스 도구 선택 — **pnpm** (packageManager 필드로 버전 고정)
 - [x] 루트 디렉터리 레이아웃 생성 (`apps/`, `packages/`, `infra/`, `docker/`, `scripts/`)
 - [x] Git 저장소 초기화 + `.gitignore`
-- [ ] 코드 품질 도구 (ESLint, Prettier, EditorConfig) — 앱 스캐폴딩 후 통합 예정
+- [x] 코드 품질 도구 (ESLint, Prettier, EditorConfig) — 루트 단일 flat config로 통합 (이슈 #5)
 
 ---
 
@@ -109,3 +109,9 @@
   - **CJS/ESM 소비자 불일치(해결: 우회 / 근본해결 백로그)**: shared는 CJS 단일 출력인데 소비자가 둘(Node-CJS api + 브라우저-ESM web). 브라우저가 CJS named export(`CheckStatus` enum=런타임 값)를 못 읽어 web에서 SyntaxError.
     - 우회: vite `optimizeDeps.include: ["@service-monitor/shared"]` (linked workspace 패키지는 Vite 사전번들 기본 제외 → 강제 포함, esbuild가 CJS→ESM 변환). `--force`로 캐시 재생성.
     - **근본 해결 백로그**: shared를 듀얼 패키지(`exports.import`=ESM / `exports.require`=CJS)로 전환. TS6 정렬/코드품질 단계에서 함께 처리.
+- (2026-06-17) **백로그 — "툴링 정렬" 별도 이슈 예정**(ESLint/Prettier 통합 #5 이후): ①api TS5.9→TS6 정렬 ②api `*.spec.ts` jest 타입(`types: ["node","jest"]`) ③shared 듀얼 패키지(CJS/ESM) 전환. 이번 #5(순수 ESLint/Prettier)에는 포함하지 않음.
+- (2026-06-17) ESLint/Prettier 루트 통합 (이슈 #5). 루트 단일 flat config(`eslint.config.mjs`) + `.prettierrc`/`.prettierignore`/`.editorconfig`/`.gitattributes`. api·web 개별 config 삭제, 루트로 수렴.
+  - 포맷은 Prettier 전담, ESLint는 품질만 — `eslint-config-prettier`로 충돌 제거(nest의 `eslint-plugin-prettier` 방식 폐기).
+  - 타입체크 린팅은 api만(`recommendedTypeChecked`+`projectService`), test 파일은 `disableTypeChecked`로 제외(jest 타입 정렬 전까지).
+  - win/mac 줄바꿈: `.gitattributes`(`* text=auto eol=lf`) + editorconfig/prettier 모두 LF로 정렬. `git add --renormalize .` 적용.
+  - `pnpm lint` / `pnpm format:check` 클린 확인.
