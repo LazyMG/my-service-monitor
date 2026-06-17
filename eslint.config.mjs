@@ -12,6 +12,13 @@ export default tseslint.config(
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
   {
+    languageOptions: {
+      parserOptions: {
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+  },
+  {
     files: ['apps/api/**/*.ts'],
     extends: [...tseslint.configs.recommendedTypeChecked],
     languageOptions: {
@@ -36,6 +43,7 @@ export default tseslint.config(
     files: ['packages/shared/**/*.ts'],
     languageOptions: { globals: globals.node },
   },
+  // 테스트 파일은 type-aware 린팅 제외 (jest/supertest 타입 노이즈 회피)
   {
     files: ['apps/api/**/*.spec.ts', 'apps/api/test/**/*.ts'],
     extends: [tseslint.configs.disableTypeChecked],

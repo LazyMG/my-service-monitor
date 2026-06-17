@@ -11,8 +11,8 @@
 ## 현재 상태 (Status)
 
 - **현재 레이어**: Layer 1 — 동작하는 서비스 (착수)
-- **현재 작업**: ESLint/Prettier 루트 통합 완료 (이슈 #5) — lint/format:check 클린
-- **다음 할 일**: "툴링 정렬" 이슈(TS6/jest/shared 듀얼) → MySQL(TypeORM) 연결
+- **현재 작업**: 툴링 정렬 완료 (이슈 #7) — shared 듀얼 패키지 / api TS6 / jest 타입
+- **다음 할 일**: MySQL(TypeORM) 연결 → 체크 엔진(HTTP/TLS)
 - **마지막 갱신**: 2026-06-17
 - **블로커**: 없음
 
@@ -115,3 +115,10 @@
   - 타입체크 린팅은 api만(`recommendedTypeChecked`+`projectService`), test 파일은 `disableTypeChecked`로 제외(jest 타입 정렬 전까지).
   - win/mac 줄바꿈: `.gitattributes`(`* text=auto eol=lf`) + editorconfig/prettier 모두 LF로 정렬. `git add --renormalize .` 적용.
   - `pnpm lint` / `pnpm format:check` 클린 확인.
+- (2026-06-17) 툴링 정렬 완료 (이슈 #7) — 백로그 3건 해소.
+  - ① shared **듀얼 패키지**: tsup으로 ESM(`index.js`)+CJS(`index.cjs`)+d.ts 출력, `exports` 조건부 맵(import/require별 types 포함). web의 `optimizeDeps.include` 우회 제거. api(require)·web(import) 양쪽 소비 확인.
+    - tsup DTS 빌드가 baseUrl을 주입해 TS5101 발생 → shared tsconfig에 `ignoreDeprecations: "6.0"`로 silence(우리가 쓴 옵션 아님).
+  - ② **api TS6 정렬**(5.7→^6). TS6에서 `@types/*` 자동 포함 안 됨 → api tsconfig `types: ["node","jest"]` 명시(process·jest 동시 해결). TS5011(rootDir 명시 요구) → build tsconfig `rootDir:"./src"`, base tsconfig `rootDir:"."`(유닛은 src, e2e는 src+test 걸침).
+  - ③ jest 타입은 ②의 `types` 명시로 함께 해결. ESLint spec `disableTypeChecked`는 **유지**(테스트 type-aware 노이즈 회피로 사유 갱신).
+  - nest 기본 spec/e2e의 stale 단언(`Hello World!`)을 실제 `getHello()` 출력에 맞춤. api 로컬 lint/format 잔재(devDep 8개 + 스크립트 2개) 제거(루트 전담).
+  - 검증: `pnpm -r build` / `pnpm lint` / `pnpm format:check` / api `test` / `test:e2e` 전부 green.
