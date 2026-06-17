@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { CheckStatus } from '@service-monitor/shared';
 
 describe('AppController', () => {
   let appController: AppController;
@@ -16,7 +17,9 @@ describe('AppController', () => {
 
   describe('root', () => {
     it('should return "Hello World!"', () => {
-      expect(appController.getHello()).toBe('Hello World!');
+      expect(appController.getHello()).toBe(
+        `service-monitor API up. default status=${CheckStatus.Up}`,
+      );
     });
   });
 });
