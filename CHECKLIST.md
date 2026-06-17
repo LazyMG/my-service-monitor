@@ -11,8 +11,8 @@
 ## 현재 상태 (Status)
 
 - **현재 레이어**: Layer 1 — 동작하는 서비스 (착수)
-- **현재 작업**: `apps/api`(NestJS) 스캐폴딩 완료 — shared 타입 소비·기동·빌드순서 확인
-- **다음 할 일**: `apps/web`(Vite) 스캐폴딩 → ESLint/Prettier 통합 → MySQL(TypeORM) 연결
+- **현재 작업**: `apps/web`(React+Vite) 스캐폴딩 완료 — shared 타입 소비·dev 프록시·기동 확인
+- **다음 할 일**: ESLint/Prettier 통합 → MySQL(TypeORM) 연결
 - **마지막 갱신**: 2026-06-17
 - **블로커**: 없음
 
@@ -37,7 +37,7 @@
 - [~] React + NestJS + MySQL 골격
   - [x] `packages/shared` 공용 타입 패키지 (targets/checks/alerts, tsconfig nodenext + es2022, TS 6)
   - [x] `apps/api` (NestJS) — `@service-monitor/api`, shared `workspace:*` 소비(`CheckStatus` 런타임 확인), `pnpm -r build` 위상정렬(shared→api)
-  - [ ] `apps/web` (React + Vite)
+  - [x] `apps/web` (React + Vite) — `@service-monitor/web`, shared `workspace:*` 소비(`CheckStatus`), `/api`→:3000 dev 프록시, `vite --force` 기동 확인
   - [ ] MySQL (TypeORM) 연결
 - [ ] 체크 엔진: HTTP 헬스체크(상태코드·응답시간)
 - [ ] 체크 엔진: TLS 인증서 만료일 파싱 (Node `tls` 모듈)
@@ -105,3 +105,7 @@
 - (2026-06-17) `apps/api` NestJS 스캐폴딩 (이슈 #1). `nest new --skip-git --skip-install --package-manager pnpm` → 루트 `pnpm install`로 워크스페이스 통합.
   - nest 템플릿의 `baseUrl: "./"` 제거 — TS5101(TS7.0 제거 예정) 경고. `paths` 없고 nodenext+심링크로 해석되므로 불필요한 잔재였음.
   - **TS 버전 혼재(미해결, 다음 정렬 대상)**: api=TS 5.9.3(nest 기본) / shared=TS 6. 에디터(TS6)가 `*.spec.ts`에서 `@types/jest` 미해결로 경고 표시(TS5.9는 해결). nest build는 `**/*spec.ts` 제외라 빌드 무영향. → TS6 정렬 시 `compilerOptions.types: ["node","jest"]`로 처리 예정.
+- (2026-06-17) `apps/web` React+Vite 스캐폴딩 (이슈 #3). `pnpm create vite`(react-ts) → `@service-monitor/web`, shared `workspace:*`, `/api`→:3000 dev 프록시.
+  - **CJS/ESM 소비자 불일치(해결: 우회 / 근본해결 백로그)**: shared는 CJS 단일 출력인데 소비자가 둘(Node-CJS api + 브라우저-ESM web). 브라우저가 CJS named export(`CheckStatus` enum=런타임 값)를 못 읽어 web에서 SyntaxError.
+    - 우회: vite `optimizeDeps.include: ["@service-monitor/shared"]` (linked workspace 패키지는 Vite 사전번들 기본 제외 → 강제 포함, esbuild가 CJS→ESM 변환). `--force`로 캐시 재생성.
+    - **근본 해결 백로그**: shared를 듀얼 패키지(`exports.import`=ESM / `exports.require`=CJS)로 전환. TS6 정렬/코드품질 단계에서 함께 처리.
