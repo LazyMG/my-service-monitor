@@ -11,9 +11,9 @@
 ## 현재 상태 (Status)
 
 - **현재 레이어**: Layer 1 — 동작하는 서비스 (착수)
-- **현재 작업**: 모노레포 골격 완료, `packages/shared` 공용 타입 패키지 구축 완료
-- **다음 할 일**: `apps/api`(NestJS) 스캐폴딩 → `apps/web`(Vite) → ESLint/Prettier 통합
-- **마지막 갱신**: 2026-06-16
+- **현재 작업**: `apps/api`(NestJS) 스캐폴딩 완료 — shared 타입 소비·기동·빌드순서 확인
+- **다음 할 일**: `apps/web`(Vite) 스캐폴딩 → ESLint/Prettier 통합 → MySQL(TypeORM) 연결
+- **마지막 갱신**: 2026-06-17
 - **블로커**: 없음
 
 > 단계가 바뀌면 위 4줄을 갱신한다.
@@ -36,7 +36,7 @@
 
 - [~] React + NestJS + MySQL 골격
   - [x] `packages/shared` 공용 타입 패키지 (targets/checks/alerts, tsconfig nodenext + es2022, TS 6)
-  - [ ] `apps/api` (NestJS)
+  - [x] `apps/api` (NestJS) — `@service-monitor/api`, shared `workspace:*` 소비(`CheckStatus` 런타임 확인), `pnpm -r build` 위상정렬(shared→api)
   - [ ] `apps/web` (React + Vite)
   - [ ] MySQL (TypeORM) 연결
 - [ ] 체크 엔진: HTTP 헬스체크(상태코드·응답시간)
@@ -102,3 +102,6 @@
 - (2026-06-16) `packages/shared` 공용 타입 패키지 구축. 소비 방식 = 컴파일 패키지(tsc → dist).
   - `moduleResolution: node`가 deprecated(TS 7.0 제거 예정) → `nodenext`로 변경. `target: es2022`. TypeScript 6.0.3.
   - 코드 품질 도구(ESLint/Prettier)는 앱 스캐폴딩 후 통합하기로 순서 조정.
+- (2026-06-17) `apps/api` NestJS 스캐폴딩 (이슈 #1). `nest new --skip-git --skip-install --package-manager pnpm` → 루트 `pnpm install`로 워크스페이스 통합.
+  - nest 템플릿의 `baseUrl: "./"` 제거 — TS5101(TS7.0 제거 예정) 경고. `paths` 없고 nodenext+심링크로 해석되므로 불필요한 잔재였음.
+  - **TS 버전 혼재(미해결, 다음 정렬 대상)**: api=TS 5.9.3(nest 기본) / shared=TS 6. 에디터(TS6)가 `*.spec.ts`에서 `@types/jest` 미해결로 경고 표시(TS5.9는 해결). nest build는 `**/*spec.ts` 제외라 빌드 무영향. → TS6 정렬 시 `compilerOptions.types: ["node","jest"]`로 처리 예정.
